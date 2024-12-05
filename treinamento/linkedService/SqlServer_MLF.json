@@ -1,0 +1,12 @@
+{
+	"name": "SqlServer_MLF",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=mlf.clientesmundoopen.com.br;initial catalog=treinamento-big-data;user id=treinamento",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDUwQTdDQjUxLUM4MkItNDAyOC1CQkIxLUE5ODk0QTA3RTU1N180NWZjMTQxZS05MTAxLTQxMDctODIxYS03YWFjMjhhNDc1MDYiDQp9"
+		}
+	}
+}

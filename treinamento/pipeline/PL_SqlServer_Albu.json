@@ -1,0 +1,423 @@
+{
+	"name": "PL_SqlServer_Albu",
+	"properties": {
+		"activities": [
+			{
+				"name": "Watermark_Exist",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Watermark_Generic_Albu",
+						"type": "DatasetReference",
+						"parameters": {
+							"pasta_banco": {
+								"value": "@pipeline().parameters.banco",
+								"type": "Expression"
+							},
+							"pasta_tabela": {
+								"value": "@pipeline().parameters.tabela",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Data_Atualizacao_Dinamica",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Watermark_Exist",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@activity('Watermark_Exist').output.exists",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Set variable2",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "data_watermark",
+								"value": "2000-01-01T00:00:00Z"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Set variable1",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Lookup1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "data_watermark",
+								"value": {
+									"value": "@substring(activity('Lookup1').output.firstRow.watermark, 0, 23)\r\n",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Lookup1",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"dataset": {
+									"referenceName": "Watermark_Generic_Albu",
+									"type": "DatasetReference",
+									"parameters": {
+										"pasta_banco": {
+											"value": "@pipeline().parameters.banco",
+											"type": "Expression"
+										},
+										"pasta_tabela": {
+											"value": "@pipeline().parameters.tabela",
+											"type": "Expression"
+										}
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Data Maxima Tabela",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT MAX(@{pipeline().parameters.coluna_chave}) AS DataAtualizacao FROM @{pipeline().parameters.schema}.@{pipeline().parameters.tabela}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_Sql_Server_Albu_Generic",
+						"type": "DatasetReference",
+						"parameters": {
+							"banco_de_dados": {
+								"value": "@pipeline().parameters.banco",
+								"type": "Expression"
+							},
+							"tabela": {
+								"value": "@pipeline().parameters.tabela",
+								"type": "Expression"
+							},
+							"schema": {
+								"value": "@pipeline().parameters.schema",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Data_Atualizacao_Dinamica",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Data Maxima Tabela",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(activity('Data Maxima Tabela').output.firstRow.DataAtualizacao, variables('data_watermark'))",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Copiando Dados",
+							"description": "Copia os dados de uma tabela cdc do SQL para a camada Stage.\n\nPara funcionar como generic e atender outras tabelas, a consulta base SQL é da seguinte forma:\n\nSELECT \n    *, \n    sys.fn_cdc_map_lsn_to_time(__$start_lsn) AS data_alteracao \nFROM cdc.tabela\nORDER BY Coluna_chave,  data_alteracao, __$update_mask",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "SELECT * FROM @{pipeline().parameters.schema}.@{pipeline().parameters.tabela} WHERE @{pipeline().parameters.coluna_chave} > '@{variables('data_watermark')}'",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Sql_Server_Albu_Generic",
+									"type": "DatasetReference",
+									"parameters": {
+										"banco_de_dados": {
+											"value": "@pipeline().parameters.banco",
+											"type": "Expression"
+										},
+										"tabela": {
+											"value": "@pipeline().parameters.tabela",
+											"type": "Expression"
+										},
+										"schema": {
+											"value": "@pipeline().parameters.schema",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_DataLake_Generic_Albu_Parquet",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": "stage",
+										"directory": {
+											"value": "albuquerque/@{pipeline().parameters.banco}/@{pipeline().parameters.tabela}/data",
+											"type": "Expression"
+										},
+										"name_file": {
+											"value": "@{formatDateTime(pipeline().TriggerTime, 'yyyyMMddHHmmss')}-@{pipeline().TriggerId}.parquet",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Atualizacao_Watermark",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "Copiando Dados",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"additionalColumns": [
+										{
+											"name": "watermark",
+											"value": {
+												"value": "@addHours(pipeline().TriggerTime,-3)",
+												"type": "Expression"
+											}
+										}
+									],
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "watermark",
+												"type": "String"
+											},
+											"sink": {
+												"name": "watermark",
+												"type": "String",
+												"physicalType": "String"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "Template_Watermart_Albu",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "Watermark_Generic_Albu",
+									"type": "DatasetReference",
+									"parameters": {
+										"pasta_banco": {
+											"value": "@pipeline().parameters.banco",
+											"type": "Expression"
+										},
+										"pasta_tabela": {
+											"value": "@pipeline().parameters.tabela",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"banco": {
+				"type": "string",
+				"defaultValue": "Pipe"
+			},
+			"tabela": {
+				"type": "string",
+				"defaultValue": "tb_pedidos_erp"
+			},
+			"schema": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"coluna_chave": {
+				"type": "string",
+				"defaultValue": "data_pedido"
+			}
+		},
+		"variables": {
+			"data_watermark": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Albuquerque/Template"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-24T21:58:46Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

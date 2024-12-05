@@ -1,0 +1,21 @@
+{
+	"name": "Odata Azure DevOpos",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "OData",
+		"typeProperties": {
+			"url": "https://analytics.dev.azure.com/mateusdevops/Previsão%20do%20Tempo/_odata/v3.0",
+			"authenticationType": "Basic",
+			"userName": "user",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault_treinamento",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "token-azure-devops-mateus"
+			}
+		}
+	}
+}

@@ -1,0 +1,107 @@
+{
+	"name": "01 DELTA_SQL_TO_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "SQL to DL",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT * \nFROM @{pipeline().parameters.NomedaTabela} \nWHERE ModifiedDate > {ts'@{formatDateTime(pipeline().parameters.RangeStart,'yyyy-MM-dd HH:mm:ss')}'}\nAND ModifiedDate <= {ts'@{formatDateTime(pipeline().parameters.RangeEnd,'yyyy-MM-dd HH:mm:ss')}'} ",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SQL_TreinamentoBigData_GENERIC",
+						"type": "DatasetReference",
+						"parameters": {
+							"NomedaTabela": {
+								"value": "@pipeline().parameters.NomedaTabela",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_dltreinamento_BRONZE_GENERIC",
+						"type": "DatasetReference",
+						"parameters": {
+							"NomeDaTabela": {
+								"value": "@pipeline().parameters.NomedaTabela",
+								"type": "Expression"
+							},
+							"RUNIDGERAL": {
+								"value": "@pipeline().parameters.RUNIDGERAL",
+								"type": "Expression"
+							},
+							"DATAHORACONSIDERADA": {
+								"value": "@pipeline().parameters.DATAHORACONSIDERADA",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"NomedaTabela": {
+				"type": "string",
+				"defaultValue": "FatoSaldo"
+			},
+			"RangeStart": {
+				"type": "string"
+			},
+			"RangeEnd": {
+				"type": "string"
+			},
+			"RUNIDGERAL": {
+				"type": "string"
+			},
+			"DATAHORACONSIDERADA": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Treinamento MLF ADF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-07-19T01:10:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

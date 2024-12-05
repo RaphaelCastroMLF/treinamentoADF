@@ -1,0 +1,28 @@
+{
+	"name": "DS_AzureDevOps_Generic_Table_Albuquerque",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Odata Azure DevOpos",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tabke_name": {
+				"type": "string",
+				"defaultValue": "table"
+			}
+		},
+		"folder": {
+			"name": "API ALBUQUERQUE"
+		},
+		"annotations": [],
+		"type": "ODataResource",
+		"schema": [],
+		"typeProperties": {
+			"path": {
+				"value": "@dataset().tabke_name",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

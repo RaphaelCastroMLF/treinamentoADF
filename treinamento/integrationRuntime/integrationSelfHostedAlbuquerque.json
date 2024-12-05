@@ -1,0 +1,6 @@
+{
+	"name": "integrationSelfHostedAlbuquerque",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}

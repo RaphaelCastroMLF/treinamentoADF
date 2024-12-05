@@ -1,0 +1,35 @@
+{
+	"name": "Vendas APP",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Pipeline1",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_SqlServer_CDC_Albu",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"banco": "Pipe",
+						"tabela": "dbo_tb_vendas_app_CT",
+						"schema": "cdc",
+						"coluna_chave": "ID_PEDIDO"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "Albuquerque/Tabelas"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-24T20:02:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

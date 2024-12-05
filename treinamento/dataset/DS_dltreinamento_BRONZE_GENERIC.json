@@ -1,0 +1,41 @@
+{
+	"name": "DS_dltreinamento_BRONZE_GENERIC",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Datalake_Treinamento",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"NomeDaTabela": {
+				"type": "string"
+			},
+			"RUNIDGERAL": {
+				"type": "string"
+			},
+			"DATAHORACONSIDERADA": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@{formatDateTime(dataset().DATAHORACONSIDERADA,'yyyyMMdd')}-@{dataset().NomeDaTabela}-@{dataset().RUNIDGERAL}.csv",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "TreinamentoBigData/@{dataset().NomeDaTabela}/@{formatDateTime(utcnow(),'yyyy/MM')}",
+					"type": "Expression"
+				},
+				"fileSystem": "bronze"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

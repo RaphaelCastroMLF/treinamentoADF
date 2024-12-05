@@ -1,0 +1,26 @@
+{
+	"name": "SqlServer_local_Albuquerque",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"banco": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "MLF123",
+			"database": "@{linkedService().banco}",
+			"encrypt": "optional",
+			"trustServerCertificate": true,
+			"authenticationType": "SQL",
+			"userName": "maqui01",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI2MGRhYzQxMy1mOGIwLTQ1ZWUtYjkzMi05OTRhZjFhYTg0YjMiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "integrationSelfHostedAlbuquerque",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

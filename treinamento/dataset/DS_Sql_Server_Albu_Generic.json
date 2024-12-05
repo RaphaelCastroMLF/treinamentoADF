@@ -1,0 +1,43 @@
+{
+	"name": "DS_Sql_Server_Albu_Generic",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_local_Albuquerque",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"banco": {
+					"value": "@dataset().banco_de_dados",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"banco_de_dados": {
+				"type": "string"
+			},
+			"tabela": {
+				"type": "string"
+			},
+			"schema": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ALBUQUERQUE"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().tabela",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

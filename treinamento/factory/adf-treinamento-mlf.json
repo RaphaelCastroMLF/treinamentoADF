@@ -1,0 +1,9 @@
+{
+	"name": "adf-treinamento-mlf",
+	"location": "brazilsouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "55d7aa18-42ab-4055-8b72-79da08b9cf07",
+		"tenantId": "8d105d58-3bef-4f33-8315-e026f633addd"
+	}
+}

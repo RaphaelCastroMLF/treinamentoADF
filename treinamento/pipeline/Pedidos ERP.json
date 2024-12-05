@@ -1,0 +1,35 @@
+{
+	"name": "Pedidos ERP",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Pipeline1",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_SqlServer_Albu",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"banco": "Pipe",
+						"tabela": "tb_pedidos_erp",
+						"schema": "dbo",
+						"coluna_chave": "data_pedido"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "Albuquerque/Tabelas"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-24T21:54:19Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,382 @@
+{
+	"name": "02 ARRAY_SQL_TO_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Extraindo tabelas",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.Tabelas",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "AdventureWorksDW2019_To_Datalake",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "If Exist",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "01 DELTA_SQL_TO_DL",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"NomedaTabela": {
+										"value": "@item()",
+										"type": "Expression"
+									},
+									"RangeStart": {
+										"value": "@variables('OLDWatermark')",
+										"type": "Expression"
+									},
+									"RangeEnd": {
+										"value": "@variables('NEWWatermark')",
+										"type": "Expression"
+									},
+									"RUNIDGERAL": {
+										"value": "@pipeline().RunId",
+										"type": "Expression"
+									},
+									"DATAHORACONSIDERADA": {
+										"value": "@pipeline().parameters.DATAHORACONSIDERADA",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "NEW Watermark",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "AdventureWorksDW2019_To_Datalake",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"additionalColumns": [
+										{
+											"name": "WaterMark",
+											"value": {
+												"value": "@variables('NEWWatermark')",
+												"type": "Expression"
+											}
+										}
+									],
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "WaterMark",
+												"type": "String"
+											},
+											"sink": {
+												"name": "WaterMark",
+												"type": "String",
+												"physicalType": "String"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "Template_Watermart",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "Watermark_Generic",
+									"type": "DatasetReference",
+									"parameters": {
+										"organization": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "If Exist",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "IF Watermark Exist",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								},
+								{
+									"activity": "NEWWatermark",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@activity('IF Watermark Exist').output.exists",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "OLD WaterMark False",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "OLDWatermark",
+											"value": "2000-01-01T00:00:00Z"
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "GET Old Watermark",
+										"type": "Lookup",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobFSReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"dataset": {
+												"referenceName": "Watermark_Generic",
+												"type": "DatasetReference",
+												"parameters": {
+													"organization": {
+														"value": "@item()",
+														"type": "Expression"
+													}
+												}
+											}
+										}
+									},
+									{
+										"name": "OLD WaterMark TRUE",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "GET Old Watermark",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "OLDWatermark",
+											"value": {
+												"value": "@activity('GET Old Watermark').output.firstRow.WaterMark",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "IF Watermark Exist",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "Watermark_Generic",
+									"type": "DatasetReference",
+									"parameters": {
+										"organization": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"exists"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "GET MAXDATA",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "SELECT MAX(ModifiedDate) as 'MAXDATA'\nFROM @{item()}",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "SQL_TreinamentoBigData_GENERIC",
+									"type": "DatasetReference",
+									"parameters": {
+										"NomedaTabela": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							}
+						},
+						{
+							"name": "NEWWatermark",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "GET MAXDATA",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "NEWWatermark",
+								"value": {
+									"value": "@activity('GET MAXDATA').output.firstRow.MAXDATA",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"Tabelas": {
+				"type": "array",
+				"defaultValue": [
+					"FatoSaldo"
+				]
+			},
+			"DATAHORACONSIDERADA": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"OLDWatermark": {
+				"type": "String"
+			},
+			"NEWWatermark": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Treinamento MLF ADF"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-10-07T23:03:05Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,357 @@
+{
+	"name": "PL_AzureDevOps_Generic_Albuquerque",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data_Upadate",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Water_Exist",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@activity('Water_Exist').output.exists",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Set First Update",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "watermark",
+								"value": "2000-01-01T00:00:00.1234567Z"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Lookup_First_Row",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.00:10:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"dataset": {
+									"referenceName": "Watermark_Generic",
+									"type": "DatasetReference",
+									"parameters": {
+										"organization": {
+											"value": "@pipeline().parameters.organization",
+											"type": "Expression"
+										},
+										"project": {
+											"value": "@pipeline().parameters.project",
+											"type": "Expression"
+										},
+										"table_name": {
+											"value": "@pipeline().parameters.table",
+											"type": "Expression"
+										}
+									}
+								}
+							}
+						},
+						{
+							"name": "WaterMark",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Lookup_First_Row",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "watermark",
+								"value": {
+									"value": "@activity('Lookup_First_Row').output.firstRow.watermark",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Water_Exist",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Watermark_Generic",
+						"type": "DatasetReference",
+						"parameters": {
+							"organization": {
+								"value": "@pipeline().parameters.organization",
+								"type": "Expression"
+							},
+							"project": {
+								"value": "@pipeline().parameters.project",
+								"type": "Expression"
+							},
+							"table_name": {
+								"value": "@pipeline().parameters.table",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Copy data AzureDevOps to Datalake",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Data_Upadate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ODataSource",
+						"query": {
+							"value": "$filter=AnalyticsUpdatedDate gt @{variables('watermark')}",
+							"type": "Expression"
+						},
+						"httpRequestTimeout": "00:05:00"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_AzureDevOps_Generic_Table_Albuquerque",
+						"type": "DatasetReference",
+						"parameters": {
+							"tabke_name": {
+								"value": "@pipeline().parameters.table",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_DataLake_Generic_Parquet_Albuquerque",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "/api_azure_devops/@{pipeline().parameters.organization}/@{pipeline().parameters.project}/@{pipeline().parameters.table}/data",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@{formatDateTime(pipeline().TriggerTime, 'yyyyMMddHHmmss')}-@{pipeline().TriggerId}.parquet",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Update_Watermark",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy data AzureDevOps to Datalake",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "watermark",
+								"value": {
+									"value": "@pipeline().TriggerTime",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "watermark",
+									"type": "String"
+								},
+								"sink": {
+									"name": "watermark",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Template_Watermart",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Watermark_Generic",
+						"type": "DatasetReference",
+						"parameters": {
+							"organization": {
+								"value": "@pipeline().parameters.organization",
+								"type": "Expression"
+							},
+							"project": {
+								"value": "@pipeline().parameters.project",
+								"type": "Expression"
+							},
+							"table_name": {
+								"value": "@pipeline().parameters.table",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"organization": {
+				"type": "string",
+				"defaultValue": "mateusdevops"
+			},
+			"project": {
+				"type": "string",
+				"defaultValue": "previsao_do_tempo"
+			},
+			"table": {
+				"type": "string"
+			},
+			"container": {
+				"type": "string",
+				"defaultValue": "stage"
+			}
+		},
+		"variables": {
+			"watermark": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "API Albuquerque"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-03T23:01:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

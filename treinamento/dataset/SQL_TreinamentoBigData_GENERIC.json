@@ -1,0 +1,24 @@
+{
+	"name": "SQL_TreinamentoBigData_GENERIC",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_TreinamentoBigData",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"NomedaTabela": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"table": {
+				"value": "@dataset().NomedaTabela",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

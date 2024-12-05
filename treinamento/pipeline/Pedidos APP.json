@@ -1,0 +1,35 @@
+{
+	"name": "Pedidos APP",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Pipeline1",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_SqlServer_Albu",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"banco": "Pipe",
+						"tabela": "tb_pedidos_app",
+						"schema": "dbo",
+						"coluna_chave": "DATA_PEDIDO"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "Albuquerque/Tabelas"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-24T21:59:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

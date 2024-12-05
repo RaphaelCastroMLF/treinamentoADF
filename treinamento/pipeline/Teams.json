@@ -1,0 +1,109 @@
+{
+	"name": "Teams",
+	"properties": {
+		"activities": [
+			{
+				"name": "Pipe Table Teams",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_AzureDevOps_Generic_Albuquerque",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"organization": "mateusdevops",
+						"project": "previsao_do_tempo",
+						"table": "Teams",
+						"container": "stage"
+					}
+				}
+			},
+			{
+				"name": "Creating Bronze Table",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Pipe Table Teams",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/API_Azure_DevOps/catalog/bronze/api_azure_devops_mateusdevops_previsao_do_tempo/autoloader_generic_bronze_table",
+					"baseParameters": {
+						"catalog_path_notebook": {
+							"value": "@pipeline().parameters.catalog_path_notebook",
+							"type": "Expression"
+						},
+						"table_name_notebook": {
+							"value": "@pipeline().parameters.TableName",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks1",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Create Silver Table",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Creating Bronze Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/API_Azure_DevOps/catalog/silver/api_azure_devops_mateusdevops_previsao_do_tempo/tb_teams"
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks1",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"TableName": {
+				"type": "string",
+				"defaultValue": "Teams"
+			},
+			"catalog_path_notebook": {
+				"type": "string",
+				"defaultValue": "bronze.api_azure_devops_mateusdevops_previsao_do_tempo.tb_teams"
+			}
+		},
+		"folder": {
+			"name": "API AZURE DEVOPS/Tables"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-25T22:20:08Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

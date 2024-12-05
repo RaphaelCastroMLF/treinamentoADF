@@ -1,0 +1,45 @@
+{
+	"name": "Watermark_Generic_Albu",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Datalake_Treinamento",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"pasta_banco": {
+				"type": "string",
+				"defaultValue": "tabelas_pipe"
+			},
+			"pasta_tabela": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ALBUQUERQUE"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "watermark.csv",
+				"folderPath": {
+					"value": "albuquerque/@{dataset().pasta_banco}/@{dataset().pasta_tabela}",
+					"type": "Expression"
+				},
+				"fileSystem": "stage"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "watermark",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
