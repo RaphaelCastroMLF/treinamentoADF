@@ -1,0 +1,6 @@
+{
+	"name": "integrationRuntimeCastro",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
