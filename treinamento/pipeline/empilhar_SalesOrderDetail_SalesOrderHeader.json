@@ -37,13 +37,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "SalesOrderDetail",
+						"referenceName": "SQL_AdventureWorksDW2014_SalesOrderDetail",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "SalesOrderHeader",
+						"referenceName": "SQL_AdventureWorksDW2014_SalesOrderHeader",
 						"type": "DatasetReference"
 					}
 				]

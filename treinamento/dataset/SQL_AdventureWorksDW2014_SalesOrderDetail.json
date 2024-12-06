@@ -1,5 +1,5 @@
 {
-	"name": "SalesOrderDetail",
+	"name": "SQL_AdventureWorksDW2014_SalesOrderDetail",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "SqlServer_Castro",
