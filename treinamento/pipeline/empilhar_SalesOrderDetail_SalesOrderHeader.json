@@ -43,7 +43,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "SQL_AdventureWorksDW2014_SalesOrderHeader",
+						"referenceName": "SQL_AdventureWorksDW2014_NewTable",
 						"type": "DatasetReference"
 					}
 				]

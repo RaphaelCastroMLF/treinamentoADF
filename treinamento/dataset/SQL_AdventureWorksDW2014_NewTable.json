@@ -1,0 +1,15 @@
+{
+	"name": "SQL_AdventureWorksDW2014_NewTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_Castro",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Castro"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": []
+	}
+}
