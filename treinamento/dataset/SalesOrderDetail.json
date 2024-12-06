@@ -1,0 +1,19 @@
+{
+	"name": "SalesOrderDetail",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_Castro",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Castro"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Sales",
+			"table": "SalesOrderDetail"
+		}
+	}
+}
