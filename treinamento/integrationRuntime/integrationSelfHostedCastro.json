@@ -1,0 +1,6 @@
+{
+	"name": "integrationSelfHostedCastro",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
