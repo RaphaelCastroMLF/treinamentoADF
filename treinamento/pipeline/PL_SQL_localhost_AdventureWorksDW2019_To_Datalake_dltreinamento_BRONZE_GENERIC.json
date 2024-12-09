@@ -25,7 +25,13 @@
 				"inputs": [
 					{
 						"referenceName": "SQL_AdventureWorksDW2019_GENERIC",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"NomeDaTabela": {
+								"value": "@pipeline().parameters.NomedaTabela",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			}
