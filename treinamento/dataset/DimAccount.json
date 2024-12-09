@@ -1,9 +1,14 @@
 {
-	"name": "DelimitedText1",
+	"name": "DimAccount",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Datalake_Treinamento",
 			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"NomedaTabela": {
+				"type": "string"
+			}
 		},
 		"folder": {
 			"name": "Castro"
@@ -13,7 +18,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "Dim.csv",
+				"fileName": {
+					"value": "@{dataset().NomedaTabela}.CSV",
+					"type": "Expression"
+				},
 				"folderPath": "AdventureWorks2014",
 				"fileSystem": "bronze"
 			},

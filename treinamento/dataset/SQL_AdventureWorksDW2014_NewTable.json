@@ -5,6 +5,11 @@
 			"referenceName": "SqlServer_Castro",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"NomedaTabela": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "Castro"
 		},
@@ -13,7 +18,10 @@
 		"schema": [],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "NewTable"
+			"table": {
+				"value": "@dataset().NomedaTabela",
+				"type": "Expression"
+			}
 		}
 	}
 }

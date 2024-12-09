@@ -1,0 +1,58 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "ExtraindoTabelas",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.Tabelas",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Execute Pipeline1_copy1",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PL_SQL_localhost_AdventureWorksDW2019_To_Datalake_dltreinamento_BRONZE_GENERIC",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"NomedaTabela": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"Tabelas": {
+				"type": "array",
+				"defaultValue": [
+					"AWBuildVersion",
+					"DatabaseLog",
+					"ErrorLog"
+				]
+			}
+		},
+		"folder": {
+			"name": "Castro"
+		},
+		"annotations": []
+	}
+}
