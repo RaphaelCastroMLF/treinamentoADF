@@ -11,7 +11,7 @@
 			"trustServerCertificate": false,
 			"authenticationType": "SQL",
 			"userName": "treADF",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJmMThlNzZjNS1kMDU2LTRlNTEtODQxMy01ZmY4OTlhZDY0ZjgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI0Mzg5MWZkOC1mNmUyLTQ0M2UtODE3NS0wNzlmMWRmOWRhZjgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "integrationSelfHostedCastro",
