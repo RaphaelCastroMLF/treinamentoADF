@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "ARRAY_SQL_TO_DL",
 	"properties": {
 		"activities": [
 			{
@@ -17,7 +17,14 @@
 						{
 							"name": "Execute Pipeline1_copy1",
 							"type": "ExecutePipeline",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "First_Watermark",
+									"dependencyConditions": [
+										"Skipped"
+									]
+								}
+							],
 							"policy": {
 								"secureInput": false
 							},
@@ -35,6 +42,92 @@
 									}
 								}
 							}
+						},
+						{
+							"name": "First_Watermark",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"additionalColumns": [
+										{
+											"name": "Watermark",
+											"value": {
+												"value": "@utcNow()",
+												"type": "Expression"
+											}
+										}
+									],
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "Watermark",
+												"type": "String"
+											},
+											"sink": {
+												"name": "Watermark",
+												"type": "String",
+												"physicalType": "String"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "Template_Watermark",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "Watermark_GENERIC_Castro",
+									"type": "DatasetReference",
+									"parameters": {
+										"NomedaTabela": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							]
 						}
 					]
 				}
@@ -44,9 +137,7 @@
 			"Tabelas": {
 				"type": "array",
 				"defaultValue": [
-					"AWBuildVersion",
-					"DatabaseLog",
-					"ErrorLog"
+					"dados"
 				]
 			}
 		},
