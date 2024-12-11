@@ -5,13 +5,13 @@
 		"annotations": [],
 		"type": "SqlServer",
 		"typeProperties": {
-			"server": "np:\\\\.\\pipe\\LOCALDB#76DFE848\\tsql\\query",
+			"server": "np:\\\\.\\pipe\\LOCALDB#34639987\\tsql\\query",
 			"database": "AdventureWorks2014",
 			"encrypt": "optional",
 			"trustServerCertificate": false,
 			"authenticationType": "SQL",
 			"userName": "treADF",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI0Mzg5MWZkOC1mNmUyLTQ0M2UtODE3NS0wNzlmMWRmOWRhZjgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJlMWNmZWEzYi03YmE3LTQ4ZjItOTE0OC04OGY0ZDU1MGExMTYiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "integrationSelfHostedCastro",
