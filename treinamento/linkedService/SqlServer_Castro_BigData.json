@@ -1,0 +1,21 @@
+{
+	"name": "SqlServer_Castro_BigData",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "np:\\\\.\\pipe\\LOCALDB#34639987\\tsql\\query",
+			"database": "AdventureWorks2014",
+			"encrypt": "optional",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "treADF",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJmODk1M2JjOS01N2Y2LTQ1YjktOThkZi0wNzYwNzVjZGI1MzgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "integrationSelfHostedCastro",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
