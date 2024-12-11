@@ -1,0 +1,56 @@
+{
+	"name": "SQL_AdventureWorks2014_TreinamentoBigData_Generic",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_Castro_BigData",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"NomedaTabela": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Castro"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "ClientID",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Cliente",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Saldo",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "CreationDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "ModifiedDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Deleted",
+				"type": "float",
+				"precision": 15
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "dados"
+		}
+	}
+}

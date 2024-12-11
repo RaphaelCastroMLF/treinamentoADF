@@ -1,0 +1,28 @@
+{
+	"name": "dados",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Datalake_Treinamento",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"NomedaTabela": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "AdventureWorks2014",
+				"fileSystem": "bronze"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
