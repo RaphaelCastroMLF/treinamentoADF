@@ -56,14 +56,21 @@
 				"outputs": [
 					{
 						"referenceName": "dados",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"NomedaTabela": {
+								"value": "@pipeline().parameters.NomedaTabela",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			}
 		],
 		"parameters": {
 			"NomedaTabela": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "dados"
 			}
 		},
 		"folder": {
