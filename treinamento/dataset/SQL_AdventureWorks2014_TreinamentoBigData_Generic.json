@@ -49,8 +49,11 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "dbo",
-			"table": "dados"
+			"schema": "",
+			"table": {
+				"value": "@dataset().NomedaTabela",
+				"type": "Expression"
+			}
 		}
 	}
 }
