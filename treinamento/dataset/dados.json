@@ -15,7 +15,14 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "AdventureWorks2014",
+				"fileName": {
+					"value": "@{formatDateTime(utcnow(),'yyyyMMdd')}.CSV",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "TreinamentoBigDataCastro/@{dataset().NomedaTabela}/@{formatDateTime(utcnow(),'yyyy/MM')}",
+					"type": "Expression"
+				},
 				"fileSystem": "bronze"
 			},
 			"columnDelimiter": ",",

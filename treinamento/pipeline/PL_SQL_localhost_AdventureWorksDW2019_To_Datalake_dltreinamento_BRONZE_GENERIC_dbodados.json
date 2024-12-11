@@ -44,7 +44,13 @@
 				"inputs": [
 					{
 						"referenceName": "SQL_AdventureWorks2014_TreinamentoBigData_Generic",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"NomedaTabela": {
+								"value": "@pipeline().parameters.NomedaTabela",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"outputs": [
@@ -55,6 +61,11 @@
 				]
 			}
 		],
+		"parameters": {
+			"NomedaTabela": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "Castro"
 		},
