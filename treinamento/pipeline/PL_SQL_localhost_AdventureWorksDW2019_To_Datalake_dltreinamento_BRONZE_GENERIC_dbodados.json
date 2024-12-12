@@ -70,7 +70,10 @@
 		"parameters": {
 			"NomedaTabela": {
 				"type": "string",
-				"defaultValue": "dados"
+				"defaultValue": "FatoSaldo"
+			},
+			"LastedModifiedDate": {
+				"type": "string"
 			}
 		},
 		"folder": {
